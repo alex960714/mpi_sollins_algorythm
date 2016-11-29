@@ -7,7 +7,7 @@ int **matr;
 int **mst;
 int* comp_num;
 int vert_num, components, f_opt;
-stack<int> curr_nodes;
+stack<int> curr_edges;
 
 void init_file(char* file_name)
 {
@@ -33,8 +33,8 @@ void init_file(char* file_name)
 void calculate()
 {
 	f_opt = 0;
-	components = vert_num;
-	while (components != 1)
+	//components = vert_num;
+	while (true)
 	{
 		for (int i = 0; i < vert_num; i++)
 		{
@@ -56,21 +56,23 @@ void calculate()
 			}
 			if (en_vert != -1)
 			{
-				curr_nodes.push(en_vert);
-				curr_nodes.push(st_vert);
+				curr_edges.push(en_vert);
+				curr_edges.push(st_vert);
 			}
 		}
-		while (!curr_nodes.empty())
+		if (curr_edges.empty())
+			break;
+		while (!curr_edges.empty())
 		{
-			int st_vert = curr_nodes.top();
-			curr_nodes.pop();
-			int en_vert = curr_nodes.top();
-			curr_nodes.pop();
+			int st_vert = curr_edges.top();
+			curr_edges.pop();
+			int en_vert = curr_edges.top();
+			curr_edges.pop();
 
 			if (mst[st_vert][en_vert] != matr[st_vert][en_vert])
 			{
 				mst[st_vert][en_vert] = mst[en_vert][st_vert] = matr[st_vert][en_vert];
-				components--;
+				//components--;
 				f_opt += mst[st_vert][en_vert];
 				int curr_comp, new_comp;
 				if (comp_num[st_vert] > comp_num[en_vert])

@@ -5,6 +5,8 @@ VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pp3_sollins_algorythm", "pp3_sollins_algorythm\pp3_sollins_algorythm.vcxproj", "{5B8E1954-8930-4CFA-A4E3-0E0E07FE7D33}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pp3_parallel_version", "pp3_parallel_version\pp3_parallel_version.vcxproj", "{A1962047-E729-4E60-B2F9-AB3F3B2B9F2B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,14 @@ Global
 		{5B8E1954-8930-4CFA-A4E3-0E0E07FE7D33}.Release|x64.Build.0 = Release|x64
 		{5B8E1954-8930-4CFA-A4E3-0E0E07FE7D33}.Release|x86.ActiveCfg = Release|Win32
 		{5B8E1954-8930-4CFA-A4E3-0E0E07FE7D33}.Release|x86.Build.0 = Release|Win32
+		{A1962047-E729-4E60-B2F9-AB3F3B2B9F2B}.Debug|x64.ActiveCfg = Debug|x64
+		{A1962047-E729-4E60-B2F9-AB3F3B2B9F2B}.Debug|x64.Build.0 = Debug|x64
+		{A1962047-E729-4E60-B2F9-AB3F3B2B9F2B}.Debug|x86.ActiveCfg = Debug|Win32
+		{A1962047-E729-4E60-B2F9-AB3F3B2B9F2B}.Debug|x86.Build.0 = Debug|Win32
+		{A1962047-E729-4E60-B2F9-AB3F3B2B9F2B}.Release|x64.ActiveCfg = Release|x64
+		{A1962047-E729-4E60-B2F9-AB3F3B2B9F2B}.Release|x64.Build.0 = Release|x64
+		{A1962047-E729-4E60-B2F9-AB3F3B2B9F2B}.Release|x86.ActiveCfg = Release|Win32
+		{A1962047-E729-4E60-B2F9-AB3F3B2B9F2B}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

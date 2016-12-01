@@ -38,7 +38,7 @@ void calculate()
 	{
 		for (int i = 0; i < vert_num; i++)
 		{
-			int min = 32000, st_vert = -1, en_vert = -1;
+			int min = _CRT_INT_MAX, st_vert = -1, en_vert = -1;
 			for (int j = 0; j < vert_num; j++)
 			{
 				if (comp_num[j] == i)

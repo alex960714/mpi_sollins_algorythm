@@ -10,7 +10,7 @@ int *matr;
 int *mst;
 int *comp;
 int *calc_en_vert;
-int vert_num, comp_num, f_opt;
+int vert_num, comp_num, f_opt, edges_num;
 ofstream os;
 
 int ProcNum, ProcRank;
@@ -36,9 +36,11 @@ void matr_init()
 	is.close();
 }
 
-void matr_init_rand(int power)
+void matr_init_rand(int v_num, int power)
 {
 	srand(time(NULL));
+	vert_num = v_num;
+	matr = new int[vert_num*vert_num];
 	for (int i = 0; i < vert_num; i++)
 	{
 		matr[i*vert_num+i] = 0;
@@ -47,13 +49,22 @@ void matr_init_rand(int power)
 			matr[i*vert_num + j] = matr[j*vert_num + i] = rand() % power;
 		}
 	}
+
+	os << "Adjacency matrix:" << endl;
+	for (int i = 0; i < vert_num; i++)
+	{
+		for (int j = 0; j < vert_num; j++)
+			os << matr[i*vert_num + j] << " ";
+		os << endl;
+	}
+	os << "--------------------" << endl;
 }
 
 void mem_init()
 {
 	if (!ProcRank)
 	{
-		matr_init();
+		matr_init_rand(10,1000);
 	}
 	MPI_Bcast(&vert_num, 1, MPI_INT, 0, MPI_COMM_WORLD);
 	comp = new int[vert_num];
@@ -158,6 +169,9 @@ bool components_update()
 					if (comp[j] == comp[en_vert] && j != en_vert)
 						comp[j] = comp[st_vert];
 				comp[en_vert] = comp[st_vert];
+				comp_num--;
+				edges_num++;
+				f_opt += min;
 			}
 			else if (comp[st_vert] > comp[en_vert])
 			{
@@ -165,10 +179,22 @@ bool components_update()
 					if (comp[j] == comp[st_vert] && j != st_vert)
 						comp[j] = comp[en_vert];
 				comp[st_vert] = comp[en_vert];
+				comp_num--;
+				edges_num++;
+				f_opt += min;
 			}
 		}
 	}
 	return update;
+}
+
+void opt_count()
+{
+	f_opt = 0;
+	for (int i = 0; i < vert_num; i++)
+		for (int j = i + 1; j < vert_num; j++)
+			if (matr[i*vert_num + j])
+				f_opt += matr[i*vert_num + j];
 }
 
 void results_record()
@@ -181,8 +207,15 @@ void results_record()
 		os << endl;
 	}
 	os << "------------------" << endl;
-	os << "MST edges sum: " << f_opt << endl;
-	os << "Parallel_version_time: " << en_time - st_time << endl;
+	os << "Edges number: " << edges_num << endl;
+	os << "Components number: " << comp_num << endl;
+	if (edges_num == vert_num - comp_num)
+		os << "Calculated graph is spanning tree (forest)" << endl;
+	else
+		os << "Calculated graph is NOT spanning tree (forest). Results are not correct!" << endl;
+	//opt_count();
+	os << endl << "MST edges sum: " << f_opt << endl;
+	os << "Parallel version time: " << en_time - st_time << endl;
 	os.close();
 }
 
@@ -206,6 +239,10 @@ int main(int argc, char** argv)
 	MPI_Comm_size(MPI_COMM_WORLD, &ProcNum);
 	MPI_Comm_rank(MPI_COMM_WORLD, &ProcRank);
 
+	if(!ProcRank)
+	{
+		os.open("results.txt");
+	}
 	mem_init();
 	MPI_Bcast(sendcounts, ProcNum, MPI_INT, 0, MPI_COMM_WORLD);
 	/*MPI_Bcast(displs, ProcNum, MPI_INT, 0, MPI_COMM_WORLD);
@@ -218,12 +255,14 @@ int main(int argc, char** argv)
 
 	if (!ProcRank)
 	{
-		os.open("results.txt");
 		for (int i = 0; i < ProcNum; i++)
 		{
 			sendcounts[i] /= vert_num;
 			displs[i] /= vert_num;
 		}
+		comp_num = vert_num;
+		edges_num = 0;
+		f_opt = 0;
 	}
 
 	MPI_Bcast(sendcounts, ProcNum, MPI_INT, 0, MPI_COMM_WORLD);

@@ -3,6 +3,7 @@
 #include <stack>
 #include <fstream>
 #include <list>
+#include <time.h>
 using namespace std;
 
 int *matr;
@@ -10,11 +11,12 @@ int *mst;
 int *comp;
 int *calc_en_vert;
 int vert_num, comp_num, f_opt;
+ofstream os;
 
 int ProcNum, ProcRank;
 int *sendcounts, *displs;
 int *proc_matr;
-int *proc_calc_edges;
+int *proc_calc_en_vert;
 int proc_vert_num, proc_displs;
 
 double st_time, en_time;
@@ -32,6 +34,19 @@ void matr_init()
 			is >> matr[i*vert_num + j];
 
 	is.close();
+}
+
+void matr_init_rand(int power)
+{
+	srand(time(NULL));
+	for (int i = 0; i < vert_num; i++)
+	{
+		matr[i*vert_num+i] = 0;
+		for (int j = i + 1; j < vert_num; j++)
+		{
+			matr[i*vert_num + j] = matr[j*vert_num + i] = rand() % power;
+		}
+	}
 }
 
 void mem_init()
@@ -91,16 +106,34 @@ void calculate()
 				en_vert = j;
 			}
 		}
-		proc_calc_edges[i] = en_vert;
+		proc_calc_en_vert[i] = en_vert;
 	}
 }
 
 bool components_update()
 {
 	bool update = false;
+	os << "Components:" << endl;
 	for (int i = 0; i < vert_num; i++)
 	{
-		if (calc_en_vert[i] != -1)
+		os << comp[i] << " ";
+	}
+	os << endl << "Calculated vertexes:" << endl;
+	for (int i = 0; i < vert_num; i++)
+	{
+		os << calc_en_vert[i] << " ";
+	}
+	os << endl << "Current MST:" << endl;
+	for (int i = 0; i < vert_num; i++)
+	{
+		for (int j = 0; j < vert_num; j++)
+			os << mst[i*vert_num + j] << " ";
+		os << endl;
+	}
+	os << "-----------------------" << endl;
+	for (int i = 0; i < vert_num; i++)
+	{
+		if (calc_en_vert[i] != -1 && comp[i] != comp[calc_en_vert[i]])
 		{
 			update = true;
 			int min = matr[i*vert_num+calc_en_vert[i]], st_vert = i, en_vert = calc_en_vert[i];
@@ -122,14 +155,16 @@ bool components_update()
 			if (comp[st_vert] < comp[en_vert])
 			{
 				for (int j = 0; j < vert_num; j++)
-					if (comp[j] == comp[en_vert])
+					if (comp[j] == comp[en_vert] && j != en_vert)
 						comp[j] = comp[st_vert];
+				comp[en_vert] = comp[st_vert];
 			}
 			else if (comp[st_vert] > comp[en_vert])
 			{
 				for (int j = 0; j < vert_num; j++)
-					if (comp[j] == comp[st_vert])
+					if (comp[j] == comp[st_vert] && j != st_vert)
 						comp[j] = comp[en_vert];
+				comp[st_vert] = comp[en_vert];
 			}
 		}
 	}
@@ -138,8 +173,7 @@ bool components_update()
 
 void results_record()
 {
-	ofstream os;
-	os.open("results.txt");
+	//os.open("results.txt");
 	for (int i = 0; i < vert_num; i++)
 	{
 		for (int j = 0; j < vert_num; j++)
@@ -148,7 +182,7 @@ void results_record()
 	}
 	os << "------------------" << endl;
 	os << "MST edges sum: " << f_opt << endl;
-	os << "Parallel_version_time" << en_time - st_time << endl;
+	os << "Parallel_version_time: " << en_time - st_time << endl;
 	os.close();
 }
 
@@ -184,6 +218,7 @@ int main(int argc, char** argv)
 
 	if (!ProcRank)
 	{
+		os.open("results.txt");
 		for (int i = 0; i < ProcNum; i++)
 		{
 			sendcounts[i] /= vert_num;
@@ -197,7 +232,7 @@ int main(int argc, char** argv)
 	proc_displs = displs[ProcRank];
 
 	if (ProcRank)
-		proc_calc_edges = new int[proc_vert_num];
+		proc_calc_en_vert = new int[proc_vert_num];
 	else
 		calc_en_vert = new int[vert_num];
 
@@ -211,23 +246,29 @@ int main(int argc, char** argv)
 		{
 			calculate();
 		}
-		MPI_Gatherv(proc_calc_edges, proc_vert_num, MPI_INT, calc_en_vert, sendcounts, displs, MPI_INT, 0, MPI_COMM_WORLD);
+		MPI_Gatherv(proc_calc_en_vert, proc_vert_num, MPI_INT, calc_en_vert, sendcounts, displs, MPI_INT, 0, MPI_COMM_WORLD);
 		
+		int update;
 		if (!ProcRank)
 		{
-			if (!components_update())
-				break;
+			update = components_update();
+		}
+		MPI_Bcast(&update, 1, MPI_INT, 0, MPI_COMM_WORLD);
+		if (!update)
+		{
+			os << "Cycle exit" << endl;
+			break;
 		}
 	}
 	MPI_Barrier(MPI_COMM_WORLD);
 	en_time = MPI_Wtime();
-
-	printf("We are here\n");
-	MPI_Finalize();
-	exit(0);
-
 	if (!ProcRank)
 	{
+		os << "Cycle exit" << endl;
+	}
+	if (!ProcRank)
+	{
+		os << "Results record start" << endl;
 		results_record();
 	}
 

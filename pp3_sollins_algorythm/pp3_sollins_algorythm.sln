@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pp3_parallel_version", "pp3
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pp3_boruvka_algorythm", "pp3_boruvka_algorythm\pp3_boruvka_algorythm.vcxproj", "{3A605011-C3A6-4325-86BF-59ED44FF5B9A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pp3_final", "pp3_final\pp3_final.vcxproj", "{40D43AB6-76EB-4EBC-AAF9-6A76B918BE6E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -41,6 +43,14 @@ Global
 		{3A605011-C3A6-4325-86BF-59ED44FF5B9A}.Release|x64.Build.0 = Release|x64
 		{3A605011-C3A6-4325-86BF-59ED44FF5B9A}.Release|x86.ActiveCfg = Release|Win32
 		{3A605011-C3A6-4325-86BF-59ED44FF5B9A}.Release|x86.Build.0 = Release|Win32
+		{40D43AB6-76EB-4EBC-AAF9-6A76B918BE6E}.Debug|x64.ActiveCfg = Debug|x64
+		{40D43AB6-76EB-4EBC-AAF9-6A76B918BE6E}.Debug|x64.Build.0 = Debug|x64
+		{40D43AB6-76EB-4EBC-AAF9-6A76B918BE6E}.Debug|x86.ActiveCfg = Debug|Win32
+		{40D43AB6-76EB-4EBC-AAF9-6A76B918BE6E}.Debug|x86.Build.0 = Debug|Win32
+		{40D43AB6-76EB-4EBC-AAF9-6A76B918BE6E}.Release|x64.ActiveCfg = Release|x64
+		{40D43AB6-76EB-4EBC-AAF9-6A76B918BE6E}.Release|x64.Build.0 = Release|x64
+		{40D43AB6-76EB-4EBC-AAF9-6A76B918BE6E}.Release|x86.ActiveCfg = Release|Win32
+		{40D43AB6-76EB-4EBC-AAF9-6A76B918BE6E}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
